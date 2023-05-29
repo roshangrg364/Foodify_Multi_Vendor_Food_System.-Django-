@@ -40,10 +40,10 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
-    RESTAURANT = 1
+    VENDOR = 1
     CUSTOMER = 2
 
-    ROLE_CHOICE = ((RESTAURANT, "Restaurant"), (CUSTOMER, "Customer"))
+    ROLE_CHOICE = ((VENDOR, "Vendor"), (CUSTOMER, "Customer"))
 
     first_name = models.CharField(max_length=200)
     last_name = models.CharField(max_length=200)
@@ -56,7 +56,7 @@ class User(AbstractBaseUser):
     last_login = models.DateTimeField(auto_now_add=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     created_date = models.DateTimeField(auto_now_add=True)
-    modified_date = models.DateTimeField(auto_now_add=True)
+    modified_date = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
     is_superadmin = models.BooleanField(default=False)
@@ -94,7 +94,7 @@ class UserProfile(models.Model):
     Longitude = models.CharField(max_length=100, null=True, blank=True)
     Latitude = models.CharField(max_length=100, blank=True, null=True)
     created_on = models.DateTimeField(auto_now_add=True)
-    modified_on = models.DateTimeField(auto_now_add=True)
+    modified_on = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.user.email
