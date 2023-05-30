@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+Welcome customer
+{{user.username}}
+
+
+{% include 'includes/alerts.html' %}
+{% endblock %}
