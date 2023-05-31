@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from .forms import UserForm
 from vendor.forms import VendorForm
 from .models import User, UserProfile
+from vendor.models import vendor
 from .utils import getdashboardurl, send_verification_email
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required, user_passes_test

@@ -1,0 +1,11 @@
+{% autoescape off %}
+
+<p>
+    HI, {{user.first_name}}
+</p>
+{% if is_approved %}
+<P>Congratulations your restaurant have been approved by admin. You can now start publishing your menu to the market place .Enjoy</P>
+{% else %}
+    <P> Sorry your restaurant have been blocked by admin. please contact to admin for more detail</P>
+{% endif %}
+{% endautoescape %}

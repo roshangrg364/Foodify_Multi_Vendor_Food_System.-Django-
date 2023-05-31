@@ -4,5 +4,5 @@ from django.http import HttpResponse
 # Create your views here.
 
 
-def registervendor(request):
-    return HttpResponse("heelo")
+def vendorprofile(request):
+    return render(request, "vendor/vendorprofile.html")

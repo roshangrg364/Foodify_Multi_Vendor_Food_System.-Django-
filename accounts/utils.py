@@ -35,3 +35,13 @@ def send_verification_email(request, user, subject, templatePath):
     to_email = user.email
     mail = EmailMessage(mail_subject, message, from_email, to=[to_email])
     mail.send()
+
+
+def send_notification(subject, template, data):
+    from_email = settings.DEFAULT_FROM_EMAIL
+    mail_subject = subject
+    message = render_to_string(template, data)
+
+    to_email = data["user"].email
+    mail = EmailMessage(mail_subject, message, from_email, to=[to_email])
+    mail.send()
