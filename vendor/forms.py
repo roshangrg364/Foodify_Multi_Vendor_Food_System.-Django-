@@ -1,10 +1,13 @@
 from django import forms
 from .models import vendor
+from accounts.validations import validate_images
 
 
 class VendorForm(forms.ModelForm):
-    password: forms.CharField(widget=forms.PasswordInput)
-    confirm_password = forms.CharField(widget=forms.PasswordInput)
+    vendor_license = forms.FileField(
+        widget=forms.FileInput(attrs={"class": "btn btn-info"}),
+        validators=[validate_images],
+    )
 
     class Meta:
         model = vendor
