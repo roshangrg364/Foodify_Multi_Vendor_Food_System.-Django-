@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="main-section">
+
+    {% include 'includes/pagecover.html' %}
+    <div class="page-section account-header buyer-logged-in">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                   <!--load sidebar here-->
+                    {% include 'includes/vendor_sidebar.html' %}
+                </div>
+                <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+                    <div class="user-dashboard loader-holder">
+                        <div class="user-holder">
+                            
+                            <h2 class="text-uppercase">Menu</h2>
+                            <hr>
+                            <h6>Menu Categories</h6>
+                            <a href="#" class="btn btn-success float-right m-1"><i class="fa fa-plus"></i> Add Menu</a>
+                            <a href="{% url 'add_category' %}" class="btn btn-info float-right m-1"><i class="fa fa-plus"></i> Add Category</a>
+							
+                            <table class="table table-hover table-borderless">
+                                <thead>
+                                  <tr>
+                                    <th scope="col" class="text-left">#</th>
+                                    <th scope="col" class="text-left">Category</th>
+                                    <th scope="col" colspan="2" class="text-left">Action</th>
+                                   
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {% if categories %}
+                                    {% for category in categories %}
+                                      <tr>
+                                        <td class="text-left">{{forloop.counter}}</td>
+                                        <td class="text-left"><a href="{% url 'menus_by_category' category.id %}">{{category.category_name}}</a></td>
+                                        <td class="text-left">
+                                            <a href="{% url 'edit_category' category.id %}" class="btn btn-secondary" ><i class="fa fa-edit"></i></a>
+                                            <a href="{% url 'delete_category' category.id %}" onclick="return confirm('Are you sure you want to delete this category')" class="btn btn-danger"><i class="fa fa-close"></i></a>
+                                        </td>
+                                      </tr>
+                                        {% endfor %}
+
+                                  {% else %}
+                                    <tr>
+                                      <td colspan="4">No Categories found</td>
+                                    </tr>
+                                  {% endif%}
+                                </tbody>
+                              </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

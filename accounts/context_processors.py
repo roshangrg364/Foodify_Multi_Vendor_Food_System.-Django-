@@ -1,13 +1,13 @@
-from vendor.models import vendor
+from vendor.models import Vendor
 
 
 def get_vendor(request):
     try:
-        Vendor = vendor.objects.get(user=request.user)
+        vendor = Vendor.objects.get(user=request.user)
     except:
-        Vendor = None
+        vendor = None
 
     data = {
-        "vendor": Vendor,
+        "vendor": vendor,
     }
     return data

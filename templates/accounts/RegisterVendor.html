@@ -113,8 +113,10 @@
                               class="col-lg-6 col-md-6 col-sm-6 col-xs-12"
                             >
                               <div class="field-holder">
-                                <label>Restaurant License</label>{{vendor_form.vendor_license}}
+                                <label>Restaurant License</label>
+                                {{vendor_form.vendor_license}}
                               </div>
+                              <label class="text-danger">{{ vendor_form.vendor_license.errors }}</label>
                             </div>
 
                            

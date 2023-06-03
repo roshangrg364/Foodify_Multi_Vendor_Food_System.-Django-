@@ -56,8 +56,8 @@ class UserProfileForm(forms.ModelForm):
             "longitude",
         ]
 
-    def __int__(self, *args, **kwargs):
-        super(UserProfileForm, self).__init__(*args, **kwargs)
-        for field in self.fields:
-            if field == "latitude" or field == "longitude":
-                self.fields[field].widget.attrs["readonly"] = "readonly"
+    # def __init__(self, *args, **kwargs):
+    # super(UserProfileForm, self).__init__(*args, **kwargs)
+    # for field in self.fields:
+    # if field == "latitude" or field == "longitude":
+    # self.fields[field].widget.attrs["readonly"] = "readonly"

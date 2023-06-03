@@ -5,7 +5,7 @@ from accounts.utils import send_notification
 # Create your models here.
 
 
-class vendor(models.Model):
+class Vendor(models.Model):
     user = models.OneToOneField(User, related_name="user", on_delete=models.CASCADE)
     user_profile = models.OneToOneField(
         UserProfile, related_name="user_profile", on_delete=models.CASCADE
@@ -22,7 +22,7 @@ class vendor(models.Model):
     def save(self, *args, **kwargs):
         if self.pk is not None:
             # update
-            previous_state = vendor.objects.get(pk=self.pk)
+            previous_state = Vendor.objects.get(pk=self.pk)
             if previous_state.is_approved != self.is_approved:
                 mail_template = "accounts/emails/admin_approval_email.html"
                 data = {"user": self.user, "is_approved": self.is_approved}
@@ -32,4 +32,4 @@ class vendor(models.Model):
                 else:
                     mail_subject = "Restaurant License uapproved"
                     send_notification(mail_subject, mail_template, data)
-        return super(vendor, self).save(*args, **kwargs)
+        return super(Vendor, self).save(*args, **kwargs)

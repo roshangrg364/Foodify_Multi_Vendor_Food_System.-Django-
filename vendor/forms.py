@@ -1,5 +1,5 @@
 from django import forms
-from .models import vendor
+from .models import Vendor
 from accounts.validations import validate_images
 
 
@@ -10,5 +10,5 @@ class VendorForm(forms.ModelForm):
     )
 
     class Meta:
-        model = vendor
+        model = Vendor
         fields = ["vendor_name", "vendor_license"]

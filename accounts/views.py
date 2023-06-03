@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from .forms import UserForm
 from vendor.forms import VendorForm
 from .models import User, UserProfile
-from vendor.models import vendor
+from vendor.models import Vendor
 from .utils import getdashboardurl, send_verification_email
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -87,18 +87,22 @@ def registervendor(request):
             )
             user.role = User.VENDOR
             user.save()
+
             vendor = vendor_form.save(commit=False)
             vendor.user = user
             user_profile = UserProfile.objects.get(user=user)
             vendor.user_profile = user_profile
             messages.success(request, "Restaurant Registered Successfully")
             vendor.save()
+
             # send verification mail
             email_subject = "Email Verification"
             template_path = "accounts/emails/AccountVerificationEmail.html"
             send_verification_email(request, user, email_subject, template_path)
 
             return redirect("registervendor")
+        else:
+            print(form.errors)
     else:
         form = UserForm()
         vendor_form = VendorForm()
@@ -106,6 +110,7 @@ def registervendor(request):
         "form": form,
         "vendor_form": vendor_form,
     }
+
     return render(request, "accounts/RegisterVendor.html", context)
 
 
