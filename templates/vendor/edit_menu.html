@@ -21,10 +21,9 @@
                             <hr>
                             <button class="btn btn-secondary" onclick="history.back()">Back</button>
                             <br>
-                            
-                            <h6>Add Category</h6>
+                            <h6>Add Menu</h6>
                             <ul class="errorlist">
-                                {% for field in category_form %}
+                                {% for field in menu_form %}
                                   {% if field.errors %}
                                     {% for error  in field.errors %}
                                       <li>
@@ -47,13 +46,13 @@
                                       {% endif %} 
                                     {% endfor %}
           
-                                  {% if form.non_field_errors%}
+                                  {% if menu_form.non_field_errors%}
                                       <li>
                                         <div
                                           class="alert alert-info alert-dismissible fade show"
                                           role="alert"
                                         >
-                                          <strong>{{form.non_field_errors}}</strong>
+                                          <strong>{{menu_form.non_field_errors}}</strong>
                                           <button
                                             type="button"
                                             class="close"
@@ -66,22 +65,49 @@
                                       </li>
                                     {% endif %}
                                  </ul>
-                            {% include 'includes/alerts.html' %}
-                            <form method="post" action="{% url 'edit_category' category.id %}">
+
+                            <form method="post" action="{% url 'edit_menu' menu.id %}" enctype="multipart/form-data">
                                 {% csrf_token %}
                                     <div class="form-fields-set">
                                         <div class="row">
                                             <div class="col-lg-12 col-md-12 col-sm-12">
                                                 <div class="field-holder">
-                                                    <Label>Category Name *</Label>
-                                                    {{category_form.category_name}}
+                                                    <Label>Menu Name *</Label>
+                                                    {{menu_form.menu_title}}
                                                 </div>
                                             </div>
-
+                                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                                <div class="field-holder">
+                                                    <Label>Category *</Label>
+                                                    {{menu_form.category}}
+                                                </div>
+                                            </div>
                                             <div class="col-lg-12 col-md-12 col-sm-12">
                                                 <div class="field-holder">
                                                     <Label>Description</Label>
-                                                    {{category_form.description}}
+                                                    {{menu_form.description}}
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="field-holder">
+                                                    <Label>Price *</Label>
+                                                    {{menu_form.price}}
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="field-holder">
+                                                    <Label>Image</Label>
+                                                    {{menu_form.image}}
+                                                </div>
+                                                <label class="text-danger">{{ menu_form.image.errors }}</label>
+                                                <br>
+                                                <img src="{{ menu.image.url }}" alt="image" width="100" class="mt-2">
+                                            </div>
+                                            
+                                            <div class="col-lg-6 col-md-6 col-sm-12">
+                                                <div class="field-holder">
+                                                    <Label>Is available</Label>
+                                                    {{menu_form.is_available}}
                                                 </div>
                                             </div>
                                         </div>
@@ -96,4 +122,5 @@
         </div>
     </div>
 </div>
+{% include 'includes/alerts.html' %}
 {% endblock %}

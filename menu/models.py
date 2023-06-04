@@ -6,17 +6,20 @@ from vendor.models import Vendor
 
 class Category(models.Model):
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
-    category_name = models.CharField(
-        max_length=100, unique=True, blank=False, null=False
-    )
-    category_slug = models.SlugField(max_length=200, unique=True)
-    description = models.TextField(max_length=500, unique=True, blank=True, null=True)
+    category_name = models.CharField(max_length=100, blank=False, null=False)
+    category_slug = models.SlugField(max_length=200)
+    description = models.TextField(max_length=500, blank=True, null=True)
     created_on = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "category"
         verbose_name_plural = "categories"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["vendor", "category_name"], name="vendor_category_name_unique"
+            )
+        ]
 
     def clean(self):
         self.category_name = self.category_name.capitalize()

@@ -20,7 +20,7 @@
                             <h2 class="text-uppercase">Menu</h2>
                             <hr>
                             <h6>Menu Categories</h6>
-                            <a href="#" class="btn btn-success float-right m-1"><i class="fa fa-plus"></i> Add Menu</a>
+                            <a href="{% url 'add_menu' %}" class="btn btn-success float-right m-1"><i class="fa fa-plus"></i> Add Menu</a>
                             <a href="{% url 'add_category' %}" class="btn btn-info float-right m-1"><i class="fa fa-plus"></i> Add Category</a>
 							
                             <table class="table table-hover table-borderless">
@@ -59,4 +59,5 @@
         </div>
     </div>
 </div>
+{% include 'includes/alerts.html' %}
 {% endblock %}
