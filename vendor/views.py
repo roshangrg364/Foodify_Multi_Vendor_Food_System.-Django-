@@ -118,8 +118,11 @@ def editcategory(request, pk=None):
                 category_name = category_form.cleaned_data["category_name"]
                 category_with_same_name = Category.objects.filter(
                     category_name__exact=category_name, vendor=vendor
-                )
-                if category is not None and category_form != category_with_same_name:
+                )[:1].get()
+                if (
+                    category_with_same_name is not None
+                    and category != category_with_same_name
+                ):
                     raise Exception("Category: " + category_name + " already exists.")
 
                 category = category_form.save(commit=False)
@@ -137,7 +140,7 @@ def editcategory(request, pk=None):
         data = {"category_form": category_form, "category": category}
     except Exception as error:
         category_form = CategoryForm(request.POST)
-        data = {"category_form": category_form}
+        data = {"category_form": category_form, "category": category}
         messages.error(request, error)
     return render(request, "vendor/edit_category.html", data)
 

@@ -30,7 +30,9 @@ class Category(models.Model):
 
 class Menu(models.Model):
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, related_name="menus"
+    )
     menu_title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=300)
     description = models.TextField(max_length=200, blank=True, null=True)

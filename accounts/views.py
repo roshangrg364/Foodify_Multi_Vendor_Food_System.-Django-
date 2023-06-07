@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
+from django.template.defaultfilters import slugify
 
 
 # Create your views here.
@@ -78,6 +79,7 @@ def registervendor(request):
             username = form.cleaned_data["username"]
             email = form.cleaned_data["email"]
             password = form.cleaned_data["password"]
+
             user = User.objects.create_user(
                 username=username,
                 first_name=first_name,
@@ -87,11 +89,12 @@ def registervendor(request):
             )
             user.role = User.VENDOR
             user.save()
-
+            vendor_name = vendor_form.cleaned_data["vendor_name"]
             vendor = vendor_form.save(commit=False)
             vendor.user = user
             user_profile = UserProfile.objects.get(user=user)
             vendor.user_profile = user_profile
+            vendor.slug = slugify(vendor_name) + str(user.id)
             messages.success(request, "Restaurant Registered Successfully")
             vendor.save()
 

@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="main-section pt-5">
+ 
+
+    <div class="page-section">
+        <div class="container">
+            <div class="row">
+             
+                <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+                    <div class="tabs-holder horizontal">
+                        <ul class="stickynav-tabs nav nav-tabs">
+                            <li class="active"><a data-toggle="tab" href="#home"><i class="fa fa-shopping-cart"></i>Cart</a></li>
+                            
+                        </ul>
+                        <div class="tab-content">
+                            <div id="home" class="tab-pane in active">
+                                <div class="menu-itam-holder">
+                                    
+                                    <div id="menu-item-list-6272" class="menu-itam-list">
+                                    
+                                        <ul id="cart-list-main">
+                                            {% if cart_items %}
+                                           
+                                                {% for item in cart_items %}
+                                                <li class="cart-item-single">
+                                                    <div class="image-holder">
+                                                        {%if item.menu.image %}
+                                                         <img src="{{item.menu.image.url}}" alt="">
+                                                         {% else %}
+                                                         <img src="{% static 'images.default-prfile.png' %}" alt="image">
+                                                         {% endif %}
+                                                    </div>
+                                                    <div class="text-holder">
+                                                        <h6>{{item.menu.menu_title}}</h6>
+                                                        <span>{{item.menu.description}}</span>
+                                                        <a href="{% url 'vendor_detail' item.menu.vendor.vendor_slug %}" class="badge badge-warning">{{item.menu.vendor}}</a>
+                                                    </div>
+                                                    <div class="price-holder">
+                                                        <span class="price">Rs. {{item.menu.price}}
+                                                            <a data-id="{{item.menu.id}}" class="decrease_qty"><i class="icon-minus text-color" style="margin-right: 1rem;"></i></a>
+                                                            <label id="item-quantity-{{item.menu.id}}">0</label>
+                                                        <a data-id="{{item.menu.id}}" class="increase_qty"><i class="icon-plus4 text-color"></i></a>
+
+                                                        <a data-id="{{item.id}}" class="delete_cart_item"><i class="icon-delete text-color"></i></a>
+                                                        
+                                                    </div>
+                                                </li>
+                                                 {% endfor %}
+                                            {%else%}
+                                                <div class="text-center p-5">
+                                                    <h3> Cart is empty</h3>
+                                                </div>    
+                                    
+                                    {% endif %}
+                                        </ul>
+                                    
+
+                                    <!-- cart items quantity-->
+                                    {% for item in cart_items %}
+                                    <span id="item-quantity-{{item.menu.id}}" style="display: none;" class="item-qty" data-qty="{{item.quantity}}"></span>
+                                    {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                    <div class="tabs-holder horizontal">
+                        <ul class="stickynav-tabs nav nav-tabs">
+                            <li class="active"><a data-toggle="tab" href="#home"><i class="icon- icon-room_service"></i>Your Order</a></li>
+                            
+                        </ul>
+                        <div class="tab-content">
+                            <div id="home" class="tab-pane in active">
+                                <div class="menu-itam-holder">
+                                    <div>
+                                        <ul>
+                                            <li style="list-style-type: none;">Sub-Total
+                                            <span class="float-right price">    
+                                                <span class="currency">Rs</span>
+                                                <span id="sub-total">{{ subtotal }}</span>
+                                            </span>
+                                            </li>
+                                            <li style="list-style-type: none;">Tax
+                                                <span class="float-right price">    
+                                                    <span class="currency">Rs</span>
+                                                    <span id="cart-tax">{{tax}}</span>
+                                                </span>
+                                            </li>
+                                            <li style="list-style-type: none;">Sub-Total
+                                                <span class="float-right price">    
+                                                    <span class="currency">Rs</span>
+                                                    <span id="cart-total">{{total}}</span>
+                                                </span></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
