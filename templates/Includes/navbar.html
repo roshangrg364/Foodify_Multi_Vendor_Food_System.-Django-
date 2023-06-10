@@ -26,13 +26,14 @@
                       type="text"
                       value=""
                       name="location"
-                      placeholder="Enter your delivery location"
+                      id="location"
+                      placeholder="Enter your current location"
                       autocomplete="off"
                     />
                     <span
                       id="foodbakery_radius_location_open"
                       class="foodbakery-radius-location"
-                      ><i class="icon-target5"></i
+                    onclick="getLocation()"  ><i class="icon-target5"></i
                     ></span>
                   </form>
                 </li>
@@ -78,3 +79,22 @@
     </div>
   </header>
 </div>
+<script>
+  var x = document.getElementById("location");
+  
+  function getLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(showPosition);
+    } else { 
+      x.innerHTML = "Geolocation is not supported by this browser.";
+    }
+  }
+  
+  function showPosition(position) {
+    const lat = position.coords.latitude;
+    const long = position.coords.longitude;
+    x.value = lat +","+long
+    
+  }
+  </script>
+  

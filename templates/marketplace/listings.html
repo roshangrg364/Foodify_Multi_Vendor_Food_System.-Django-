@@ -21,7 +21,7 @@
                             </div>
                             <div class="listing simple">
                                 <ul>
-
+                                {% if vendors %}
                                 {% for vendor in vendors %}
                                         <li>
                                             <div class="img-holder">
@@ -52,6 +52,7 @@
                                             </div>
                                         </li>
                                    {% endfor %}
+                                {% endif %}
                                 </ul>
                             </div>
                             

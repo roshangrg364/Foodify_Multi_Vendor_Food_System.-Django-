@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.gis.db import models as gismodels
+from django.contrib.gis.geos import Point
 
 
 # Create your models here.
@@ -93,19 +95,20 @@ class UserProfile(models.Model):
         upload_to="users/cover_photos", blank=True, null=True
     )
     address = models.CharField(max_length=300, blank=True, null=True)
-    # address_line_2 = models.CharField(max_length=200, blank=True, null=True)
     country = models.CharField(max_length=100, blank=True, null=True)
     state = models.CharField(max_length=100, blank=True, null=True)
     city = models.CharField(max_length=100, null=True, blank=True)
     pin_code = models.CharField(max_length=100, null=True, blank=True)
     longitude = models.CharField(max_length=100, null=True, blank=True)
     latitude = models.CharField(max_length=100, blank=True, null=True)
+    location = gismodels.PointField(blank=True, null=True, srid=4326)
     created_on = models.DateTimeField(auto_now_add=True)
     modified_on = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.user.email
 
-
-# def full_address(self):
-#  return f"{self.address_line_1},{self.address_line_2}"
+    def save(self, *args, **kwargs):
+        if self.latitude and self.longitude:
+            self.location = Point(float(self.longitude), float(self.latitude))
+        return super(UserProfile, self).save(*args, **kwargs)

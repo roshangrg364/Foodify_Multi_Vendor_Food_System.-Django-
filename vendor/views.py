@@ -1,8 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from accounts.forms import UserProfileForm
-from .forms import VendorForm
-from .models import Vendor
+from .forms import VendorForm, OpeningHourForm
+from .models import Vendor, OpeningHour
 from accounts.models import UserProfile
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -10,6 +10,7 @@ from accounts.views import check_vendor
 from menu.models import Category, Menu
 from menu.forms import CategoryForm, MenuForm
 from django.template.defaultfilters import slugify
+from django.http import JsonResponse
 
 # Create your views here.
 
@@ -222,3 +223,94 @@ def deletemenu(request, pk=None):
         messages.error(request, "menu not found")
 
     return redirect("menus_by_category", menu.category.id)
+
+
+@login_required(login_url="login")
+@user_passes_test(check_vendor)
+def openinghours(request):
+    openinghourform = OpeningHourForm()
+    openinghours = OpeningHour.objects.filter(vendor=get_vendor(request))
+    data = {"openinghourform": openinghourform, "openinghours": openinghours}
+    return render(request, "vendor/opening_hours.html", data)
+
+
+@login_required(login_url="login")
+def addopeninghours(request):
+    try:
+        if request.META.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest":
+            if request.method == "POST":
+                day = request.POST["day"]
+                from_hour = request.POST["from_hour"]
+                to_hour = request.POST["to_hour"]
+                is_closed = request.POST["is_closed"]
+                is_closed_value = False if is_closed == "false" else True
+                if is_closed == "true":
+                    from_hour = None
+                    to_hour = None
+                vendor_data = get_vendor(request)
+
+                existing_opening_hour = OpeningHour.objects.filter(
+                    vendor=vendor_data, day=day, from_hour=from_hour, to_hour=to_hour
+                ).first()
+                if existing_opening_hour:
+                    raise Exception("opening hours already exists with same inputs")
+
+                closed_opening_hour_for_same_day = OpeningHour.objects.filter(
+                    vendor=vendor_data, is_closed=True, day=day
+                ).first()
+
+                if closed_opening_hour_for_same_day:
+                    raise Exception("restaurant closed for particular day")
+
+                opening_hour = OpeningHour.objects.create(
+                    vendor=vendor_data,
+                    day=day,
+                    from_hour=from_hour,
+                    to_hour=to_hour,
+                    is_closed=is_closed_value,
+                )
+
+                days = dict(OpeningHour.Days)
+                return JsonResponse(
+                    {
+                        "status": "success",
+                        "message": "Created successfully",
+                        "id": opening_hour.id,
+                        "from_hour": opening_hour.from_hour,
+                        "to_hour": opening_hour.to_hour,
+                        "day": days[int(opening_hour.day)],
+                        "is_closed": is_closed,
+                    }
+                )
+        else:
+            return JsonResponse({"status": "failed", "message": "Invalid request"})
+    except Exception as errr:
+        return JsonResponse(
+            {
+                "status": "failed",
+                "message": str(errr),
+            }
+        )
+
+
+def deleteopeninghours(request, id):
+    try:
+        opening_hour = OpeningHour.objects.get(pk=id)
+        if opening_hour:
+            opening_hour.delete()
+            return JsonResponse(
+                {
+                    "status": "success",
+                    "message": "Removed successfully",
+                }
+            )
+        else:
+            raise Exception("data not found")
+
+    except:
+        return JsonResponse(
+            {
+                "status": "failed",
+                "message": "something went wrong. please contact to administrator",
+            }
+        )

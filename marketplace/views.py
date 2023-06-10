@@ -1,11 +1,13 @@
 from django.shortcuts import render, get_object_or_404, HttpResponse
-from vendor.models import Vendor
+from vendor.models import Vendor, OpeningHour
 from menu.models import Category, Menu
 from marketplace.models import Cart
 from django.db.models import Prefetch
 from django.http import JsonResponse
 from .context_processor import getCounter, getCartAmount
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from datetime import date, time, datetime
 
 # Create your views here.
 
@@ -26,9 +28,23 @@ def vendordetail(request, vendor_slug):
         Prefetch("menus", queryset=Menu.objects.filter(is_available=True))
     )
     cart_items = None
+    opening_hours = OpeningHour.objects.filter(vendor=vendor).order_by(
+        "day", "-from_hour"
+    )
+
+    # check current day opening_hour
+    today = date.today().isoweekday()
+    current_opening_hour = OpeningHour.objects.filter(vendor=vendor, day=today)
+
     if request.user.is_authenticated:
         cart_items = Cart.objects.filter(user=request.user)
-    data = {"vendor": vendor, "categories": categories, "cart_items": cart_items}
+    data = {
+        "vendor": vendor,
+        "categories": categories,
+        "cart_items": cart_items,
+        "opening_hours": opening_hours,
+        "current_opening_hours": current_opening_hour,
+    }
     return render(request, "marketplace/vendor_detail.html", data)
 
 
@@ -149,3 +165,29 @@ def cartdetail(request):
     carts = Cart.objects.filter(user=request.user).order_by("created_on")
     data = {"cart_items": carts}
     return render(request, "marketplace/cartdetail.html", data)
+
+
+def search(request):
+    address = request.GET["address"]
+    name = request.GET["restaurantname"]
+    radius = request.GET["radius"]
+    lat = request.GET["latitude"]
+    longitude = request.GET["longitude"]
+    vendors = None
+    vendor_count = 0
+    vendors = Vendor.objects.filter(user__is_active=True, is_approved=True)
+    if name:
+        if name:
+            vendors_with_given_menu = Menu.objects.filter(
+                is_available=True, menu_title__icontains=name
+            ).values_list("vendor", flat=True)
+
+            vendors = vendors.filter(
+                Q(id__in=vendors_with_given_menu) | Q(vendor_name__icontains=name)
+            )
+
+    if address:
+        vendors = vendors.filter(user_profile__address__icontains=address)
+    vendor_count = vendors.count()
+    data = {"vendors": vendors, "vendor_count": vendor_count}
+    return render(request, "marketplace/listings.html", data)

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="main-section">
+
+    {% include 'includes/pagecover.html' %}
+    <div class="page-section account-header buyer-logged-in">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+                   <!--load sidebar here-->
+                    {% include 'includes/vendor_sidebar.html' %}
+                </div>
+                <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+                    <div class="user-dashboard loader-holder">
+                        <div class="user-holder">
+                            
+                            <h2 class="text-uppercase">Opening Hours</h2>
+                            <hr>
+                           
+
+                            <table class="table opening-hours table-borderless" style="width: 500px">
+                                <tbody id="opening_hour-list">
+                                    {% for hour in openinghours %}
+                                     <tr>
+                                        <td><b> {{hour}}</b></td>
+                                       <td>
+                                        {% if hour.is_closed %}
+                                            Closed
+                                            {% else %}
+                                            {{hour.from_hour}} - {{hour.to_hour}}
+                                        {% endif %}
+                                       </td>
+                                       <td>
+                                        <a href="#" data-id = "{{hour.id}}" class="delete-opening-hour"> Remove</a>
+                                       </td>
+                                     </tr>
+                                   
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <br>
+                            <form  id ="openinghours-form">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        {{openinghourform.day}}
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        {{openinghourform.from_hour}}
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        {{openinghourform.to_hour}}
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        {{openinghourform.is_closed}} Set As Closed
+                                    </div>
+                                    <br>
+                                    <div class="col-md-4 mt-4">
+                                       <button type="submit" class="btn btn-success">Add Opening Hours</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% include 'includes/alerts.html' %}
+{% endblock %}
