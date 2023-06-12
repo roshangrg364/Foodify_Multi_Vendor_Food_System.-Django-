@@ -27,7 +27,7 @@ $(document).ready(function(){
              {
               $(`#item-quantity-${id}`).html(response.quantity)
               $("#cart-counter").html(response.cart_counter.cart_count)
-              populateCartAmount(response.cart_amount.subtotal,response.cart_amount.tax,response.cart_amount.total)
+              populateCartAmount(response.cart_amount.subtotal,response.cart_amount.tax_details,response.cart_amount.total)
              }
             },
             error:function(errResponse){
@@ -66,7 +66,7 @@ $(document).ready(function(){
            {
             $(`#item-quantity-${id}`).html(response.quantity)
             $("#cart-counter").html(response.cart_counter.cart_count)
-            populateCartAmount(response.cart_amount.subtotal,response.cart_amount.tax,response.cart_amount.total)
+            populateCartAmount(response.cart_amount.subtotal,response.cart_amount.tax_details,response.cart_amount.total)
             if(response.quantity <=0)
             {
               shownotification("error","no item left to remove","Item Empty")
@@ -114,7 +114,7 @@ $(document).ready(function(){
           $("#cart-counter").html(response.cart_counter.cart_count)
           elm.closest(".cart-item-single").remove()
           checkcartcounter(response.cart_counter.cart_count)
-          populateCartAmount(response.cart_amount.subtotal,response.cart_amount.tax,response.cart_amount.total)
+          populateCartAmount(response.cart_amount.subtotal,response.cart_amount.tax_details,response.cart_amount.total)
           shownotification("success","Success","Deleted Succesfully")
          }
         },
@@ -140,9 +140,12 @@ $(document).ready(function(){
       }
     }
 
-    function populateCartAmount(subtotal,tax,total){
+    function populateCartAmount(subtotal,tax_detail,total){
       $("#sub-total").html(subtotal)
-      $("#cart-tax").html(tax)
       $("#cart-total").html(total)
+      for( let data of tax_detail)
+      {
+        $(`#tax-${data.tax_type.replace(/\s/g,'')}`).html(data.tax_amount)
+      }
     }
 })

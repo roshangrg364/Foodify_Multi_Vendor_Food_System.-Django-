@@ -82,19 +82,26 @@
                                 <div class="menu-itam-holder">
                                     <div>
                                         <ul>
+                                            <!--tax,subtotal,total and tax_detail are from contextprocessor of marketplace.please refer in case of confusion-->
                                             <li style="list-style-type: none;">Sub-Total
                                             <span class="float-right price">    
                                                 <span class="currency">Rs</span>
                                                 <span id="sub-total">{{ subtotal }}</span>
                                             </span>
                                             </li>
-                                            <li style="list-style-type: none;">Tax
-                                                <span class="float-right price">    
-                                                    <span class="currency">Rs</span>
-                                                    <span id="cart-tax">{{tax}}</span>
-                                                </span>
-                                            </li>
-                                            <li style="list-style-type: none;">Sub-Total
+                                           
+                                            {% for tax_detail in tax_details %}
+                                           
+                                                <li style="list-style-type: none;" >{{tax_detail.tax_type}}
+                                                    <small>{{tax_detail.tax_percentage}}%</small>
+                                                    <span class="float-right price">    
+                                                        <span class="currency">Rs</span>
+                                                        <span id="tax-{{tax_detail.tax_type|cut:" "}}">{{tax_detail.tax_amount}}</span>
+                                                    </span>
+                                                </li>
+                                            {% endfor %}
+                                            
+                                            <li style="list-style-type: none;">Total
                                                 <span class="float-right price">    
                                                     <span class="currency">Rs</span>
                                                     <span id="cart-total">{{total}}</span>

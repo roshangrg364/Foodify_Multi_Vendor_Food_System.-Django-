@@ -73,7 +73,8 @@ def addtocart(request, menu_id):
                         "cart_amount": getCartAmount(request),
                     }
                 )
-            except:
+            except Exception as error:
+                print(error)
                 return JsonResponse(
                     {
                         "status": "error",
