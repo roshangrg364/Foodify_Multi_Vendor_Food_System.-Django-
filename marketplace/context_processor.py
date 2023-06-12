@@ -39,6 +39,5 @@ def getCartAmount(request):
                 "tax_amount": tax_amount,
             }
             tax_details.append(tax_detail)
-            print(tax_details)
         total = subtotal + total_tax
     return dict(subtotal=subtotal, tax=total_tax, total=total, tax_details=tax_details)
