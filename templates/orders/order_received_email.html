@@ -1,0 +1,33 @@
+{% autoescape off %}
+
+<p>
+    HI, {{vendor.vendor_name}}
+</p>
+
+You have receive a new order from <b> {{user.first_name}}</b>
+ Your orderno. {{order.order_number}}
+ Transaction Id: {{order.payment.transaction_id}}
+
+ Items Ordered:
+ <table class="table table-borderless">
+    <tr>
+        <th>SN</th>
+        <th>Item Name</th>
+        <th>Qty</th>
+        <th>Price</th>
+    </tr>
+
+    {% for item in cart_items %}
+    <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{item.menu.menu_title}}</td>
+        <td>{{item.quantity}}</td>
+        <td>{{item.menu.price}}</td>
+    </tr>
+    {% endfor %}
+    <tr>
+        <td colspan="2">Total</td>
+        <td colspan="2">{{order.total}}</td>
+    </tr>
+ </table>
+{% endautoescape %}

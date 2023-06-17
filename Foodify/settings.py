@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "marketplace",
     "django.contrib.gis",
     "customer",
+    "orders",
 ]
 
 MIDDLEWARE = [
@@ -74,6 +75,7 @@ TEMPLATES = [
                 "marketplace.context_processor.getCounter",
                 "marketplace.context_processor.getCartAmount",
                 "accounts.context_processors.get_userprofile",
+                "accounts.context_processors.get_paypal_client_id",
             ],
         },
     },
@@ -174,3 +176,9 @@ os.environ["PROJ_LIB"] = (
     + os.environ["PATH"]
 )
 GDAL_LIBRARY_PATH = os.path.join(BASE_DIR, "env\Lib\site-packages\osgeo\gdal304.dll")
+
+# paypal key
+
+PAYPAL_CLIENT_ID = config("Paypal_Client_Id")
+# allow popups from third party here we have used because the popup fro paypal was being blocked
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"

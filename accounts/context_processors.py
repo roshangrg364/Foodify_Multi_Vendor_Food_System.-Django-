@@ -1,5 +1,6 @@
 from vendor.models import Vendor
 from accounts.models import UserProfile
+from django.conf import settings
 
 
 def get_vendor(request):
@@ -24,3 +25,7 @@ def get_userprofile(request):
         "user_profile": user_profile,
     }
     return data
+
+
+def get_paypal_client_id(request):
+    return {"PAYPAL_CLIENT_ID": settings.PAYPAL_CLIENT_ID}

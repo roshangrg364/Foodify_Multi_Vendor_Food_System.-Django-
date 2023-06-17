@@ -11,6 +11,8 @@ from django.core.exceptions import PermissionDenied
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 from django.template.defaultfilters import slugify
+from orders.models import Order, OrderItem
+from django.db.models import Sum
 
 
 # Create your views here.
@@ -151,7 +153,17 @@ def myaccount(request):
 @login_required(login_url="login")
 @user_passes_test(check_customer)
 def customerdashboard(request):
-    return render(request, "accounts/customerdashboard.html")
+    orders = Order.objects.filter(user=request.user, is_ordered=True).order_by(
+        "created_at"
+    )
+    total_order_amount = orders.aggregate(Sum("total"))
+    total_orders = orders.count()
+    data = {
+        "orders": orders[:5],
+        "total_order_amount": total_order_amount["total__sum"],
+        "order_count": total_orders,
+    }
+    return render(request, "accounts/customerdashboard.html", data)
 
 
 @login_required(login_url="login")

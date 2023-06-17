@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404, HttpResponse
+from django.shortcuts import render, get_object_or_404, HttpResponse, redirect
 from vendor.models import Vendor, OpeningHour
 from menu.models import Category, Menu
 from marketplace.models import Cart
@@ -8,6 +8,10 @@ from .context_processor import getCounter, getCartAmount
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from datetime import date, time, datetime
+from orders.forms import OrderForm
+from orders.models import Order, OrderItem, Payment
+from accounts.models import User, UserProfile
+from django.contrib import messages
 
 # Create your views here.
 
@@ -192,3 +196,41 @@ def search(request):
     vendor_count = vendors.count()
     data = {"vendors": vendors, "vendor_count": vendor_count}
     return render(request, "marketplace/listings.html", data)
+
+
+@login_required(login_url="login")
+def checkout(request):
+    user_profile = UserProfile.objects.get(user=request.user)
+    order = Order.objects.filter(user=request.user, status=Order.Status_New).first()
+    if order:
+        default_data = {
+            "first_name": order.first_name,
+            "last_name": order.last_name,
+            "phone": order.phone,
+            "email": order.email,
+            "address": order.address,
+            "country": order.country,
+            "state": order.state,
+            "city": order.city,
+            "pin_code": order.pin_code,
+        }
+    else:
+        default_data = {
+            "first_name": request.user.first_name,
+            "last_name": request.user.last_name,
+            "phone": request.user.phone_number,
+            "email": request.user.email,
+            "address": user_profile.address,
+            "country": user_profile.country,
+            "state": user_profile.state,
+            "city": user_profile.city,
+            "pin_code": user_profile.pin_code,
+        }
+    order_form = OrderForm(initial=default_data)
+    carts = Cart.objects.filter(user=request.user).order_by("created_on")
+    if carts.count() <= 0:
+        messages.info(request, "no cart items available")
+        return redirect("marketplace")
+    data = {"order_form": order_form, "cart_items": carts}
+
+    return render(request, "marketplace/checkout.html", data)
