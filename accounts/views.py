@@ -13,6 +13,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.template.defaultfilters import slugify
 from orders.models import Order, OrderItem
 from django.db.models import Sum
+import datetime
 
 
 # Create your views here.
@@ -156,12 +157,19 @@ def customerdashboard(request):
     orders = Order.objects.filter(user=request.user, is_ordered=True).order_by(
         "created_at"
     )
+    current_month = datetime.datetime.now().month
+    current_month_orders = orders.filter(created_at__month=current_month)
+    current_month_amount = 0
+    for order in current_month_orders:
+        current_month_amount += order.total
+
     total_order_amount = orders.aggregate(Sum("total"))
     total_orders = orders.count()
     data = {
         "orders": orders[:5],
         "total_order_amount": total_order_amount["total__sum"],
         "order_count": total_orders,
+        "current_month_amount": current_month_amount,
     }
     return render(request, "accounts/customerdashboard.html", data)
 
@@ -169,7 +177,28 @@ def customerdashboard(request):
 @login_required(login_url="login")
 @user_passes_test(check_vendor)
 def vendordashboard(request):
-    return render(request, "accounts/vendordashboard.html")
+    vendor = Vendor.objects.get(user=request.user)
+    orders = Order.objects.filter(vendors__in=[vendor.id], is_ordered=True).order_by(
+        "-created_at"
+    )
+    # current month revenue
+    current_month = datetime.datetime.now().month
+    current_month_orders = orders.filter(created_at__month=current_month)
+    current_month_revenue = 0
+    for order in current_month_orders:
+        current_month_revenue += order.get_total_by_vendor()["grand_total"]
+
+    # total revenue
+    total_revenue = 0
+    for order in orders:
+        total_revenue += order.get_total_by_vendor()["grand_total"]
+    data = {
+        "orders": orders[:5],
+        "order_count": orders.count(),
+        "total_revenue": total_revenue,
+        "current_month_revenue": current_month_revenue,
+    }
+    return render(request, "accounts/vendordashboard.html", data)
 
 
 def activate(request, uidb64, token):

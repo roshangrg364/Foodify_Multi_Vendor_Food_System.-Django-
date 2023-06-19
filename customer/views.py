@@ -37,6 +37,8 @@ def customerprofile(request):
     return render(request, "customer/customer_profile.html", data)
 
 
+@login_required(login_url="login")
+@user_passes_test(check_customer)
 def myorders(request):
     orders = Order.objects.filter(user=request.user, is_ordered=True).order_by(
         "-created_at"
@@ -45,6 +47,8 @@ def myorders(request):
     return render(request, "customer/my_orders.html", data)
 
 
+@login_required(login_url="login")
+@user_passes_test(check_customer)
 def orderdetails(request, order_id):
     order = Order.objects.get(pk=order_id)
     if not order:

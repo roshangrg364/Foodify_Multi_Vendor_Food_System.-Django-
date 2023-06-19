@@ -11,6 +11,7 @@ from menu.models import Category, Menu
 from menu.forms import CategoryForm, MenuForm
 from django.template.defaultfilters import slugify
 from django.http import JsonResponse
+from orders.models import Order, OrderItem
 
 # Create your views here.
 
@@ -118,7 +119,7 @@ def editcategory(request, pk=None):
                 vendor = get_vendor(request)
                 category_name = category_form.cleaned_data["category_name"]
                 category_with_same_name = Category.objects.filter(
-                    category_name__exact=category_name, vendor=vendor
+                    category_name__iexact=category_name, vendor=vendor
                 )[:1].get()
                 if (
                     category_with_same_name is not None
@@ -314,3 +315,30 @@ def deleteopeninghours(request, id):
                 "message": "something went wrong. please contact to administrator",
             }
         )
+
+
+@login_required(login_url="login")
+@user_passes_test(check_vendor)
+def vendororderdetails(request, order_id):
+    vendor = get_vendor(request)
+    order = Order.objects.get(is_ordered=True, id=order_id)
+    order_items = OrderItem.objects.filter(menu__vendor=vendor, order=order)
+    data = {
+        "order": order,
+        "order_items": order_items,
+        "vendor": vendor,
+        "sub_total": order.get_total_by_vendor()["sub_total"],
+        "tax_data": order.get_total_by_vendor()["tax_data"],
+        "grand_total": order.get_total_by_vendor()["grand_total"],
+    }
+    return render(request, "vendor/vendor_order_detail.html", data)
+
+
+def vendororders(request):
+    vendor = Vendor.objects.get(user=request.user)
+    orders = Order.objects.filter(vendors__in=[vendor.id], is_ordered=True).order_by(
+        "-created_at"
+    )
+    data = {"orders": orders}
+
+    return render(request, "vendor/vendor_orders.html", data)

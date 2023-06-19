@@ -10,6 +10,8 @@ import uuid
 from accounts.utils import send_notification
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from menu.models import Menu
+from marketplace.models import Tax
 
 # Create your views here.
 
@@ -34,6 +36,46 @@ def placeorder(request):
                 ).first()
                 if existing_order:
                     existing_order.delete()
+
+                vendorIds = []
+                for item in cart_items:
+                    if item.menu.vendor.id not in vendorIds:
+                        vendorIds.append(item.menu.vendor.id)
+
+                # calculate vendor wise total data and tax
+                vendorwise_sub_total = {}
+
+                vendorwise_order_total_data = {}
+                tax_list = Tax.objects.filter(is_active=True)
+                for item in cart_items:
+                    subtotal = 0
+                    menu = Menu.objects.get(pk=item.menu.id, vendor__id__in=vendorIds)
+                    vendor_id = menu.vendor.id
+                    if vendor_id in vendorwise_sub_total:
+                        subtotal = vendorwise_sub_total[vendor_id]
+                        subtotal += item.quantity * menu.price
+                        vendorwise_sub_total[vendor_id] = subtotal
+                    else:
+                        subtotal = menu.price * item.quantity
+                        vendorwise_sub_total[vendor_id] = subtotal
+
+                    # calculate tax
+                    vendorwise_tax_data = []
+                    for tax in tax_list:
+                        tax_type = tax.tax_type
+                        tax_percentage = tax.tax_percentage
+                        tax_amount = round((tax_percentage * subtotal) / 100, 2)
+                        tax_detail = {
+                            "tax_type": tax_type,
+                            "tax_percentage": tax_percentage,
+                            "tax_amount": tax_amount,
+                        }
+                        vendorwise_tax_data.append(tax_detail)
+                    # vendorwise total tax data
+                    vendorwise_order_total_data.update(
+                        {menu.vendor.id: {subtotal: vendorwise_tax_data}}
+                    )
+
                 first_name = form.cleaned_data["first_name"]
                 last_name = form.cleaned_data["last_name"]
                 phone = form.cleaned_data["phone"]
@@ -61,7 +103,9 @@ def placeorder(request):
                 order.payment_method = payment_method
                 order.status = Order.Status_New
                 order.tax_data = json.dumps(tax_details)
+                order.total_data = json.dumps(vendorwise_order_total_data)
                 order.save()
+                order.vendors.add(*vendorIds)
                 order.order_number = generateOrder_number(order.id)
                 order.save()
                 data = {"order": order, "cart_items": cart_items}

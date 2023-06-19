@@ -7,11 +7,10 @@
            
             <li class="{% if '/accounts/vendor/category/' == request.path %} active {% endif %}"><a href="{% url 'category' %}"><i class="icon-menu5"></i>Menu Builder</a></li>
             <li class="{% if 'openinghours'  in request.path %} active {% endif %}"><a href="{% url 'opening_hours' %}"><i class="icon-menu5"></i>Opening Hours</a></li>
-            <li><a href="restaurant-orders.html"><i class="icon-add_shopping_cart"></i>Orders</a></li>
-            <li><a href="restaurant-earnings.html"><i class="icon-money"></i>Earnings</a></li>
-            <li><a href="restaurant-statement.html"><i class="icon-file-text22"></i>Statement</a></li>
-            <li><a href="restaurant-change-password.html"><i class="icon-unlock-alt"></i>Change Password</a></li>
-            <li><a class="logout-btn" href="registration.html"><i class="icon-log-out"></i>Signout</a></li>
+            <li class="{% if 'vendor-orders'  in request.path %} active {% endif %}"><a href="{% url 'vendor_orders' %}"><i class="icon-add_shopping_cart"></i>Orders</a></li>
+            <li><a href="#"><i class="icon-money"></i>Earnings</a></li>
+            <li><a href="#"><i class="icon-file-text22"></i>Statement</a></li>
+            <li><a class="logout-btn" href="{% url 'logout' %}"><i class="icon-log-out"></i>Signout</a></li>
         </ul>
     </div>
 </div>

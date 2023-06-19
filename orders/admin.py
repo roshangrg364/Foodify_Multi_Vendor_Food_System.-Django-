@@ -26,6 +26,7 @@ class OrderAdmin(admin.ModelAdmin):
         "total",
         "payment_method",
         "status",
+        "vendors_list",
         "is_ordered",
     ]
     inlines = [OrderItemInline]

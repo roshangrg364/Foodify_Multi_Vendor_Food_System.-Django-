@@ -8,8 +8,10 @@ def getCounter(request):
     cart_count = 0
     if request.user.is_authenticated:
         try:
-            cart_items = Cart.objects.filter(user=request.user).values("menu")
-            cart_count = len(cart_items)
+            cart_items = (
+                Cart.objects.filter(user=request.user).values("menu").distinct()
+            )
+            cart_count = cart_items.count()
         except:
             cart_count = 0
 

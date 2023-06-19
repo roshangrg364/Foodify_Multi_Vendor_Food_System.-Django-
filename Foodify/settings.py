@@ -56,6 +56,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "orders.request_object.request_object_middleware",  # custom middleware to get request object
 ]
 
 ROOT_URLCONF = "Foodify.urls"

@@ -27,4 +27,11 @@ urlpatterns = [
         views.deleteopeninghours,
         name="delete_opening_hours",
     ),
+    # order detail
+    path(
+        "order-details/<int:order_id>",
+        views.vendororderdetails,
+        name="vendor_order_details",
+    ),
+    path("vendor-orders/", views.vendororders, name="vendor_orders"),
 ]

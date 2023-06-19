@@ -5,13 +5,13 @@
 
 {% block content %}
 <div class="main-section">
-    {% include 'customer/cover.html' %}
+    {% include 'includes/pagecover.html' %}
     <div class="page-section account-header buyer-logged-in">
         <div class="container">
             <div class="row">
                 <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
                    <!--load sidebar here-->
-                    {% include 'includes/customer_sidebar.html' %}
+                    {% include 'includes/vendor_sidebar.html' %}
                 </div>
                 <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
                     <div class="user-dashboard loader-holder">
@@ -30,25 +30,25 @@
                                             <br>
                                             <div class="row">
                                                 <div class="col-md-6">
-                                                  <h4>  Thank you for the order</h4>
+                                                    <h4 class="mt-2 mb-3">Order Details</h4>
                                                 </div>
                                                 <div class="col-md-6 text-right">
                                                     <p class="mb-0">
-                                                        {{order.name}}
+                                                        {{vendor.vendor_name}}
                                                     </p>
                                                     <p class="mb-0">
-                                                        {{order.address}}
+                                                        {{vendor.user_profile.address}}
                                                     </p>
                                                     <p class="mb-0">
-                                                        {{order.phone}}
+                                                        {{vendor.user.phone}}
                                                     </p>
                                                     <p class="mb-0">
-                                                        {{order.email}}
+                                                        {{order.user.email}}
                                                     </p>
                                                 </div>
                                             </div>
-                                            
-                                            <h6>Hello, {{order.name}}</h6>
+                                          
+                                            <h6>Hello, {{vendor.vendor_name}}</h6>
                                             <span> Review yuor order below.</span>
                             
                                             <hr>
@@ -119,7 +119,7 @@
                                                         <li style="list-style-type: none;">Total
                                                             <span class="float-right price">    
                                                                 <span class="currency">Rs</span>
-                                                                <span id="cart-total">{{order.total}}</span>
+                                                                <span id="cart-total">{{grand_total}}</span>
                                                             </span></li>
                                                         
                                                     </ul>
