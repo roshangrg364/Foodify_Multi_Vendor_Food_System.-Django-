@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from marketplace.models import Cart
+from django.contrib.sites.shortcuts import get_current_site
 from marketplace.context_processor import getCartAmount
 from .forms import OrderForm
 from .models import Order, Payment, OrderItem
 import simplejson as json
-from .utils import generateOrder_number
+from .utils import generateOrder_number, get_total_by_vendor_id
 from django.http import JsonResponse
 import uuid
 from accounts.utils import send_notification
@@ -127,6 +128,9 @@ def orderpayment(request):
             try:
                 with transaction.atomic():
                     if request.method == "POST":
+                        cart_items = Cart.objects.filter(user=request.user)
+                        if cart_items.count() <= 0:
+                            return redirect("marketplace")
                         order_number = request.POST["order_number"]
                         payment_method = request.POST["payment_method"]
                         transaction_id = request.POST["transaction_id"]
@@ -156,7 +160,8 @@ def orderpayment(request):
                         order.save()
 
                         # add orderitem
-                        cart_items = Cart.objects.filter(user=request.user)
+
+                        customer_sub_total = 0
                         for item in cart_items:
                             order_item = OrderItem(
                                 order=order,
@@ -168,12 +173,21 @@ def orderpayment(request):
                                 amount=(item.menu.price * item.quantity),
                             )
                             order_item.save()
+                            customer_sub_total += item.quantity * item.menu.price
 
                         # send notification to customer
+                        domain = get_current_site(request)
                         mail_subject = "Thank you for ordering."
                         mail_template = "orders/order_confirmation_email.html"
                         to_email = order.email
-                        data = {"order": order, "user": request.user}
+                        data = {
+                            "order": order,
+                            "user": request.user,
+                            "cart_items": cart_items,
+                            "domain": domain,
+                            "tax_data": json.loads(order.tax_data),
+                            "sub_total": customer_sub_total,
+                        }
                         send_notification(mail_subject, mail_template, data, to_email)
 
                         # send notification to vendor
@@ -181,21 +195,31 @@ def orderpayment(request):
                         for cart in cart_items:
                             vendor_id = cart.menu.vendor.id
                             vendor_email = cart.menu.vendor.user.email
-
                             if vendor_id not in vendors:
                                 vendors.append(vendor_id)
                                 mail_subject = "You have received a new order."
                                 mail_template = "orders/order_received_email.html"
-                                items = cart_items.filter(menu__vendor__id=vendor_id)
+                                items = OrderItem.objects.filter(
+                                    order=order, menu__vendor=cart.menu.vendor
+                                )
+                                vendor_specific_total = get_total_by_vendor_id(
+                                    order, vendor_id
+                                )
+
                                 data = {
                                     "order": order,
                                     "user": request.user,
                                     "cart_items": items,
+                                    "domain": domain,
                                     "vendor": item.menu.vendor,
+                                    "tax_data": vendor_specific_total["tax_data"],
+                                    "sub_total": vendor_specific_total["sub_total"],
+                                    "grand_total": vendor_specific_total["grand_total"],
                                 }
                                 send_notification(
                                     mail_subject, mail_template, data, vendor_email
                                 )
+
                                 # delete cart items
                                 cart_items.delete()
 
