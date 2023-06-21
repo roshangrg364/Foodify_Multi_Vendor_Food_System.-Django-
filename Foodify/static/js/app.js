@@ -94,3 +94,14 @@ $("#openinghours-form").on("submit",function(e){
       }
     });
 })
+
+
+function blockwindow()
+{
+  document.querySelector(".loading").classList.remove("hidden")
+}
+
+function unblockwindow()
+{
+  document.querySelector(".loading").classList.add("hidden")
+}

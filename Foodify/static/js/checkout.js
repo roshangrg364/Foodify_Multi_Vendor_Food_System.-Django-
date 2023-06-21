@@ -7,6 +7,7 @@ savePayment("CashOnDelivery","")
 
 
 function savePayment(paymentMethod,transaction_id){
+    blockwindow()
     const order_no = $('#order-number').val()
     const csrf_token = getCookie('csrftoken');
     const data ={
@@ -20,13 +21,14 @@ function savePayment(paymentMethod,transaction_id){
     url:"/orders/order-payment/",
     data:data,
     success:function(response){
-        console.log(response)
+        unblockwindow()
         shownotification("success",response.message)
         setTimeout(function(){
             window.location.href =`/orders/order-confirmation?order_id=${response.order_id}&transaction_id=${response.transaction_id}`
         },1000)
     },
     error:function(error){
+        unblockwindow()
         shownotification("error","something went wrong")
     }
 
