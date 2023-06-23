@@ -14,6 +14,7 @@ from django.template.defaultfilters import slugify
 from orders.models import Order, OrderItem
 from django.db.models import Sum
 import datetime
+from django.db import transaction
 
 
 # Create your views here.
@@ -36,30 +37,36 @@ def registeruser(request):
         messages.info(request, "user already logged in")
         return redirect("myaccount")
     if request.method == "POST":
-        form = UserForm(request.POST)
-        if form.is_valid():
-            first_name = form.cleaned_data["first_name"]
-            last_name = form.cleaned_data["last_name"]
-            username = form.cleaned_data["username"]
-            email = form.cleaned_data["email"]
-            password = form.cleaned_data["password"]
-            user = User.objects.create_user(
-                username=username,
-                first_name=first_name,
-                last_name=last_name,
-                email=email,
-                password=password,
-            )
-            user.role = User.CUSTOMER
-            messages.success(request, "User Registered Successfully")
-            user.save()
+        with transaction.atomic():
+            form = UserForm(request.POST)
+            if form.is_valid():
+                first_name = form.cleaned_data["first_name"]
+                last_name = form.cleaned_data["last_name"]
+                username = form.cleaned_data["username"]
+                email = form.cleaned_data["email"]
+                password = form.cleaned_data["password"]
+                user = User.objects.create_user(
+                    username=username,
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=email,
+                    password=password,
+                )
+                user.role = User.CUSTOMER
+                user.save()
+                messages.success(
+                    request,
+                    "User Registered Successfully.Please confirm your email for verification",
+                )
 
-            # send verification email
-            email_subject = "Email Verification"
-            template_path = "accounts/emails/AccountVerificationEmail.html"
-            send_verification_email(request, user, email_subject, template_path)
+                # send verification email
+                email_subject = "Email Verification"
+                template_path = "accounts/emails/AccountVerificationEmail.html"
+                send_verification_email(request, user, email_subject, template_path)
 
-            return redirect("registeruser")
+                return redirect("registeruser")
+            else:
+                print(form.errors)
     else:
         form = UserForm()
     context = {
@@ -74,41 +81,46 @@ def registervendor(request):
         messages.info(request, "user already logged in")
         return redirect("myaccount")
     if request.method == "POST":
-        form = UserForm(request.POST)
-        vendor_form = VendorForm(request.POST, request.FILES)
-        if form.is_valid() and vendor_form.is_valid():
-            first_name = form.cleaned_data["first_name"]
-            last_name = form.cleaned_data["last_name"]
-            username = form.cleaned_data["username"]
-            email = form.cleaned_data["email"]
-            password = form.cleaned_data["password"]
+        with transaction.atomic():
+            form = UserForm(request.POST)
+            vendor_form = VendorForm(request.POST, request.FILES)
+            if form.is_valid() and vendor_form.is_valid():
+                first_name = form.cleaned_data["first_name"]
+                last_name = form.cleaned_data["last_name"]
+                username = form.cleaned_data["username"]
+                email = form.cleaned_data["email"]
+                password = form.cleaned_data["password"]
 
-            user = User.objects.create_user(
-                username=username,
-                first_name=first_name,
-                last_name=last_name,
-                email=email,
-                password=password,
-            )
-            user.role = User.VENDOR
-            user.save()
-            vendor_name = vendor_form.cleaned_data["vendor_name"]
-            vendor = vendor_form.save(commit=False)
-            vendor.user = user
-            user_profile = UserProfile.objects.get(user=user)
-            vendor.user_profile = user_profile
-            vendor.slug = slugify(vendor_name) + str(user.id)
-            messages.success(request, "Restaurant Registered Successfully")
-            vendor.save()
+                user = User.objects.create_user(
+                    username=username,
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=email,
+                    password=password,
+                )
+                user.role = User.VENDOR
+                user.save()
+                vendor_name = vendor_form.cleaned_data["vendor_name"]
+                vendor = vendor_form.save(commit=False)
+                vendor.user = user
+                user_profile = UserProfile.objects.get(user=user)
+                vendor.user_profile = user_profile
+                vendor.vendor_slug = slugify(vendor_name) + str(user.id)
+                vendor.save()
+                print(vendor.vendor_slug)
+                messages.success(
+                    request,
+                    "Restaurant Registered Successfully.Please confirm your email for verification",
+                )
 
-            # send verification mail
-            email_subject = "Email Verification"
-            template_path = "accounts/emails/AccountVerificationEmail.html"
-            send_verification_email(request, user, email_subject, template_path)
+                # send verification mail
+                email_subject = "Email Verification"
+                template_path = "accounts/emails/AccountVerificationEmail.html"
+                send_verification_email(request, user, email_subject, template_path)
 
-            return redirect("registervendor")
-        else:
-            print(form.errors)
+                return redirect("registervendor")
+            else:
+                print(form.errors)
     else:
         form = UserForm()
         vendor_form = VendorForm()

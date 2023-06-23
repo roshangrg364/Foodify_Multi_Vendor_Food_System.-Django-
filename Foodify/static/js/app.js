@@ -11,6 +11,7 @@ function shownotification(status,title,message)
 
 $(document).on("click",".delete-opening-hour",function(e){
   e.preventDefault()
+  blockwindow()
   Swal.fire({
     title: 'Do you want to remove this schedule?',
     showCancelButton: true,
@@ -23,6 +24,7 @@ $(document).on("click",".delete-opening-hour",function(e){
     type:"get",
     url:"/accounts/vendor/openinghours/delete/"+id,
     success:function(response){
+      unblockwindow()
       if(response.status =="success"){
         shownotification("success","success",response.message)
         elm.closest("tr").remove()
@@ -33,6 +35,7 @@ $(document).on("click",".delete-opening-hour",function(e){
       }
     },
     error:function(error){
+      unblockwindow()
       shownotification("error","error","something went wrong. please contact to administrator")
     }
   })
@@ -43,6 +46,7 @@ $(document).on("click",".delete-opening-hour",function(e){
 
 $("#openinghours-form").on("submit",function(e){
   e.preventDefault();
+  unblockwindow()
   const day = $("#id_day").val()
   const fromHour = $("#id_from_hour").val()
   const toHour= $("#id_to_hour").val()
@@ -69,7 +73,7 @@ $("#openinghours-form").on("submit",function(e){
       url: "/accounts/vendor/openinghours/add/",
       data:data,
       success: function(response){
-        console.log(response)
+        unblockwindow()
        if(response.status =="success")
        {
           const html = ` <tr>
@@ -90,6 +94,7 @@ $("#openinghours-form").on("submit",function(e){
        }
       },
       error:function(errResponse){
+        unblockwindow()
          shownotification("error","error","something went wrong. please contact to administrator")
       }
     });

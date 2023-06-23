@@ -34,8 +34,11 @@ def vendorprofile(request):
         vendor_form = VendorForm(request.POST, request.FILES, instance=vendor_data)
 
         if profile_form.is_valid() and vendor_form.is_valid():
+            vendor_name = vendor_form.cleaned_data["vendor_name"]
             profile_form.save()
-            vendor_form.save()
+            vendor = vendor_form.save(commit=False)
+            vendor.vendor_slug = slugify(vendor_name) + str(vendor_data.id)
+            vendor.save()
             messages.success(request, "Profile updated successfully")
             return redirect("vendorprofile")
         else:

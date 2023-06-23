@@ -61,6 +61,7 @@
               class="cs-color cs-popup-joinus-btn login-popup text-danger"
               href="{% url 'logout' %}"
               >Logout</a>
+              <p><small class="badge badge-success">({{user.email}})</small></p>
               {% else %}
               <a
               class="cs-color cs-popup-joinus-btn login-popup"

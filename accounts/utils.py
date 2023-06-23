@@ -44,7 +44,7 @@ def send_notification(subject, template, data, to_emailAddress=None):
     message = render_to_string(template, data)
 
     to_email = data["user"].email
-    if to_email is not None:
+    if to_emailAddress is not None:
         to_email = to_emailAddress
     mail = EmailMessage(mail_subject, message, from_email, to=[to_email])
     mail.content_subtype = "html"

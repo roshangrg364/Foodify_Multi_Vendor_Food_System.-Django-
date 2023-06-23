@@ -41,6 +41,7 @@ class Vendor(models.Model):
         if self.pk is not None:
             # update
             previous_state = Vendor.objects.get(pk=self.pk)
+
             if previous_state.is_approved != self.is_approved:
                 mail_template = "accounts/emails/admin_approval_email.html"
                 data = {"user": self.user, "is_approved": self.is_approved}
