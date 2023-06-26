@@ -11,7 +11,7 @@
                 <a href="{% url 'home' %}" class="light-logo">
                   <img
                     src="{% static 'extra-images/main-logo.png' %}"
-                    alt="FoodBakery" height="80px"
+                    alt="Foodify" 
                   />
                 </a>
               </figure>
@@ -20,7 +20,7 @@
 
             <div class="main-location ml-5">
               <ul>
-                <li class="location-has-children choose-location">
+                <!-- <li class="location-has-children choose-location">
                   <form action="#">
                     <input
                       type="text"
@@ -36,7 +36,7 @@
                     onclick="getLocation()"  ><i class="icon-target5"></i
                     ></span>
                   </form>
-                </li>
+                </li> -->
               </ul>
             </div>
           </div>
@@ -50,7 +50,7 @@
               <a
               class="btn btn-outline-danger text-uppercase font-weight-bold"
               href="{% url 'marketplace' %}"
-              >Market place</a>
+              >Food Market</a>
               
               {% if user.is_authenticated %}
               <a

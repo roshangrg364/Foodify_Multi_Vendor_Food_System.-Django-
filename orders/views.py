@@ -156,7 +156,7 @@ def orderpayment(request):
                         # update order
                         order.payment = payment
                         order.is_ordered = True
-                        order.status = Order.Status_Accepted
+                        order.status = Order.Status_Received
                         order.save()
 
                         # add orderitem

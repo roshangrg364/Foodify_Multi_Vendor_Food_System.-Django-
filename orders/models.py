@@ -31,13 +31,13 @@ class Payment(models.Model):
 
 class Order(models.Model):
     Status_New = "New"
-    Status_Accepted = "Accepted"
+    Status_Received = "Received"
     Status_Completed = "Completed"
     Status_Cancelled = "Cancelled"
 
     STATUS = (
         (Status_New, Status_New),
-        (Status_Accepted, Status_Accepted),
+        (Status_Received, Status_Received),
         (Status_Completed, Status_Completed),
         (Status_Cancelled, Status_Cancelled),
     )

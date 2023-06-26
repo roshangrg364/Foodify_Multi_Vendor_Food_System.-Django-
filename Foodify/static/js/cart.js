@@ -1,12 +1,14 @@
 $(document).ready(function(){
     $(".increase_qty").on("click",function(e){
         e.preventDefault();
+        blockwindow();
         const elm = $(this)
         const id = elm.attr("data-id")
         $.ajax({
             type: "get",
             url: "/marketplace/add_to_cart/"+id,
             success: function(response){
+              unblockwindow()
               if(response.status =="unauthenticated")
               {
                 Swal.fire({
@@ -31,6 +33,7 @@ $(document).ready(function(){
              }
             },
             error:function(errResponse){
+              unblockwindow()
               shownotification("error","error","something went wrong. please contact to administrator")
             }
           });
@@ -39,13 +42,14 @@ $(document).ready(function(){
 
     $(".decrease_qty").on("click",function(e){
       e.preventDefault();
+      blockwindow();
       const elm = $(this)
       const id = elm.attr("data-id")
       $.ajax({
           type: "get",
           url: "/marketplace/remove_from_cart/"+id,
           success: function(response){
-
+            unblockwindow()
             if(response.status =="unauthenticated")
             {
               Swal.fire({
@@ -77,6 +81,7 @@ $(document).ready(function(){
            }
           },
           error:function(errResponse){
+            unblockwindow()
              shownotification("error","error","something went wrong. please contact to administrator")
           }
         });
@@ -86,13 +91,14 @@ $(document).ready(function(){
   
   $(".delete_cart_item").on("click",function(e){
     e.preventDefault();
+    blockwindow()
     const elm = $(this)
     const id = elm.attr("data-id")
     $.ajax({
         type: "get",
         url: "/marketplace/delete_cart_item/"+id,
         success: function(response){
-
+          unblockwindow()
           if(response.status =="unauthenticated")
           {
             Swal.fire({
@@ -119,6 +125,7 @@ $(document).ready(function(){
          }
         },
         error:function(errResponse){
+          unblockwindow()
            shownotification("error","error","something went wrong. please contact to administrator")
         }
       });
