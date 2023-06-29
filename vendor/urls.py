@@ -34,4 +34,17 @@ urlpatterns = [
         name="vendor_order_details",
     ),
     path("vendor-orders/", views.vendororders, name="vendor_orders"),
+    path(
+        "vendor-pending-order/", views.vendorpendingorders, name="vendor_pending_orders"
+    ),
+    path(
+        "vendor-process-order/<int:order_id>",
+        views.vendorprocessorder,
+        name="vendor_process_order",
+    ),
+    path(
+        "vendor-complete-order/<int:order_id>",
+        views.vendorcompleteorder,
+        name="vendor_complete_order",
+    ),
 ]

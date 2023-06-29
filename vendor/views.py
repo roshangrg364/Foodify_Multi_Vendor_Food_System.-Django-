@@ -11,7 +11,12 @@ from menu.models import Category, Menu
 from menu.forms import CategoryForm, MenuForm
 from django.template.defaultfilters import slugify
 from django.http import JsonResponse
-from orders.models import Order, OrderItem
+from orders.models import Order, OrderItem, Payment
+from django.db.models import Q
+from django.db import transaction
+from django.contrib.sites.shortcuts import get_current_site
+from orders.utils import get_total_by_vendor_id
+from accounts.utils import send_notification
 
 # Create your views here.
 
@@ -337,6 +342,8 @@ def vendororderdetails(request, order_id):
     return render(request, "vendor/vendor_order_detail.html", data)
 
 
+@login_required(login_url="login")
+@user_passes_test(check_vendor)
 def vendororders(request):
     vendor = Vendor.objects.get(user=request.user)
     orders = Order.objects.filter(vendors__in=[vendor.id], is_ordered=True).order_by(
@@ -345,3 +352,108 @@ def vendororders(request):
     data = {"orders": orders}
 
     return render(request, "vendor/vendor_orders.html", data)
+
+
+@login_required(login_url="login")
+@user_passes_test(check_vendor)
+def vendorpendingorders(request):
+    vendor = Vendor.objects.get(user=request.user)
+    pending_orders = Order.objects.filter(
+        vendors__in=[vendor.id], is_ordered=True
+    ).exclude(Q(status=Order.Status_Cancelled) | Q(status=Order.Status_Completed))
+
+    data = {"orders": pending_orders}
+    return render(request, "vendor/pending_vendor_orders.html", data)
+
+
+def vendorprocessorder(request, order_id):
+    try:
+        vendor = Vendor.objects.get(user=request.user)
+        order = Order.objects.get(id=order_id, is_ordered=True)
+        order_items = OrderItem.objects.filter(menu__vendor=vendor, order=order)
+        if order.status == Order.Status_Cancelled:
+            messages.info(request, "Order already Cancelled")
+            return redirect("vendor_pending_orders")
+        if order.status == Order.Status_Completed:
+            messages.info(request, "Order already Completed")
+            return redirect("vendor_pending_orders")
+        processing_order_items = order_items.filter(status=OrderItem.Status_Process)
+        if processing_order_items.count() > 0:
+            messages.info(request, "Order  already in processing state")
+            return redirect("vendor_pending_orders")
+        with transaction.atomic():
+            for item in order_items:
+                item.status = OrderItem.Status_Process
+                item.save()
+
+            mail_subject = "Your order have been begin to process."
+            mail_template = "orders/order_process_email.html"
+            items = order_items
+            vendor_specific_total = get_total_by_vendor_id(order, vendor.id)
+            domain = get_current_site(request)
+            data = {
+                "order": order,
+                "user": request.user,
+                "order_items": items,
+                "domain": domain,
+                "vendor": item.menu.vendor,
+                "tax_data": vendor_specific_total["tax_data"],
+                "sub_total": vendor_specific_total["sub_total"],
+                "grand_total": vendor_specific_total["grand_total"],
+            }
+            send_notification(mail_subject, mail_template, data, vendor.user.email)
+            messages.success(request, "order processed successfully")
+            return redirect("vendor_pending_orders")
+
+    except Exception as ex:
+        print(ex)
+        messages.error(request, "something went wrong. please Contact to administrator")
+        return redirect("vendor_pending_orders")
+
+
+def vendorcompleteorder(request, order_id):
+    try:
+        vendor = Vendor.objects.get(user=request.user)
+        order = Order.objects.get(id=order_id, is_ordered=True)
+        if order.status == Order.Status_Cancelled:
+            messages.info(request, "Order already Cancelled")
+            return redirect("vendor_pending_orders")
+        if order.status == Order.Status_Completed:
+            messages.info(request, "Order already Completed")
+            return redirect("vendor_pending_orders")
+        order_items = OrderItem.objects.filter(menu__vendor=vendor, order=order)
+        with transaction.atomic():
+            for item in order_items:
+                item.status = OrderItem.Status_Completed
+                item.save()
+            notcompleted_order_items = OrderItem.objects.filter(order=order).exclude(
+                status=Order.Status_Completed
+            )
+            if notcompleted_order_items.count() == 0:
+                order.status = Order.Status_Completed
+                payment = Payment.objects.get(id=order.payment.id)
+                payment.status = Payment.Status_Completed
+                order.save()
+                payment.save()
+            mail_subject = "Your order have been completed."
+            mail_template = "orders/order_complete_email.html"
+            items = order_items
+            vendor_specific_total = get_total_by_vendor_id(order, vendor.id)
+            domain = get_current_site(request)
+            data = {
+                "order": order,
+                "user": request.user,
+                "order_items": items,
+                "domain": domain,
+                "vendor": item.menu.vendor,
+                "tax_data": vendor_specific_total["tax_data"],
+                "sub_total": vendor_specific_total["sub_total"],
+                "grand_total": vendor_specific_total["grand_total"],
+            }
+            send_notification(mail_subject, mail_template, data, vendor.user.email)
+            messages.success(request,"Order completed successfully")
+            return redirect("vendor_pending_orders")
+
+    except Exception as ex:
+        messages.error(request, "something went wrong. please Contact to administrator")
+        return redirect("vendor_pending_orders")

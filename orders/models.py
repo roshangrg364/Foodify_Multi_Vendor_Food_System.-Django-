@@ -34,12 +34,14 @@ class Order(models.Model):
     Status_Received = "Received"
     Status_Completed = "Completed"
     Status_Cancelled = "Cancelled"
+    Status_Process = "Processing"
 
     STATUS = (
         (Status_New, Status_New),
         (Status_Received, Status_Received),
         (Status_Completed, Status_Completed),
         (Status_Cancelled, Status_Cancelled),
+        (Status_Process, Status_Process),
     )
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
@@ -69,7 +71,7 @@ class Order(models.Model):
     )
     total_tax = models.FloatField()
     payment_method = models.CharField(max_length=25)
-    status = models.CharField(max_length=15, choices=STATUS, default="New")
+    status = models.CharField(max_length=15, choices=STATUS)
     is_ordered = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -78,6 +80,16 @@ class Order(models.Model):
     @property
     def name(self):
         return f"{self.first_name} {self.last_name}"
+
+    @property
+    def vendor_order_status(self):
+        vendor = Vendor.objects.get(user=request_object.user)
+        order_items = OrderItem.objects.filter(order=self, menu__vendor=vendor)
+        vendor_order_status = self.status
+        if order_items.count() > 0:
+            vendor_order_status = order_items.first().status
+
+        return vendor_order_status
 
     def vendors_list(self):
         return ",".join(str(i) for i in self.vendors.all())
@@ -112,6 +124,17 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
+    Status_Received = "Received"
+    Status_Completed = "Completed"
+    Status_Cancelled = "Cancelled"
+    Status_Process = "Processing"
+
+    STATUS = (
+        (Status_Received, Status_Received),
+        (Status_Completed, Status_Completed),
+        (Status_Cancelled, Status_Cancelled),
+        (Status_Process, Status_Process),
+    )
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     payment = models.ForeignKey(
         Payment, on_delete=models.SET_NULL, blank=True, null=True
@@ -123,6 +146,7 @@ class OrderItem(models.Model):
     amount = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    status = models.CharField(max_length=15, choices=STATUS, default=Status_Received)
 
     def __str__(self):
         return self.menu.menu_title

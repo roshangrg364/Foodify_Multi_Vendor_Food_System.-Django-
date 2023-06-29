@@ -8,6 +8,7 @@
             <li class="{% if '/accounts/vendor/category/' == request.path %} active {% endif %}"><a href="{% url 'category' %}"><i class="icon-menu5"></i>Menu Builder</a></li>
             <li class="{% if 'openinghours'  in request.path %} active {% endif %}"><a href="{% url 'opening_hours' %}"><i class="icon-menu5"></i>Opening Hours</a></li>
             <li class="{% if 'vendor-orders'  in request.path %} active {% endif %}"><a href="{% url 'vendor_orders' %}"><i class="icon-add_shopping_cart"></i>Orders</a></li>
+            <li class="{% if 'vendor-pending-order'  in request.path %} active {% endif %}"><a href="{% url 'vendor_pending_orders' %}"><i class="icon-add_shopping_cart"></i>Pending Orders</a></li>
             <li><a href="#"><i class="icon-money"></i>Earnings</a></li>
             <li><a href="#"><i class="icon-file-text22"></i>Statement</a></li>
             <li><a class="logout-btn" href="{% url 'logout' %}"><i class="icon-log-out"></i>Signout</a></li>
