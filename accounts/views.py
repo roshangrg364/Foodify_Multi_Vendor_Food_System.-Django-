@@ -167,7 +167,7 @@ def myaccount(request):
 @user_passes_test(check_customer)
 def customerdashboard(request):
     orders = Order.objects.filter(user=request.user, is_ordered=True).order_by(
-        "created_at"
+        "-created_at"
     )
     current_month = datetime.datetime.now().month
     current_month_orders = orders.filter(created_at__month=current_month)

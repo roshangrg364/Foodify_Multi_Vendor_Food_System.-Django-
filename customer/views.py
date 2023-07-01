@@ -6,6 +6,8 @@ from accounts.forms import UserProfileForm, UserForm, UserFormForCustomer
 from django.contrib import messages
 from orders.models import Order, OrderItem
 import simplejson as json
+from django.db.models import Q
+from django.db import transaction
 
 
 # Create your views here.
@@ -66,3 +68,49 @@ def orderdetails(request, order_id):
         "tax_data": tax_data,
     }
     return render(request, "customer/order_detail.html", data)
+
+
+@login_required(login_url="login")
+@user_passes_test(check_customer)
+def pendingorders(request):
+    pending_orders = Order.objects.filter(
+        user=request.user,
+        is_ordered=True,
+    ).exclude(Q(status=Order.Status_Cancelled) | Q(status=Order.Status_Completed))
+
+    data = {"orders": pending_orders}
+    return render(request, "customer/pending_customer_orders.html", data)
+
+
+@login_required(login_url="login")
+@user_passes_test(check_customer)
+def cancelorder(request, order_id):
+    order = Order.objects.filter(id=order_id, is_ordered=True).first()
+    if not order:
+        messages.info(request, "Order not found")
+        return redirect("customer_pending_orders")
+    if order.status == Order.Status_Completed:
+        messages.info(request, "Order already completed")
+        return redirect("customer_pending_orders")
+    if order.status == Order.Status_Cancelled:
+        messages.info(request, "Order already Cancelled")
+        return redirect("customer_pending_orders")
+
+    order_items = OrderItem.objects.filter(order=order).exclude(
+        Q(status=OrderItem.Status_Completed) | Q(status=OrderItem.Status_Cancelled)
+    )
+
+    processingOrderitems = order_items.filter(status=OrderItem.Status_Process)
+    if processingOrderitems.count() > 0:
+        messages.info(request, "Order processing have already started")
+        return redirect("customer_pending_orders")
+
+    with transaction.atomic():
+        order.status = Order.Status_Cancelled
+        order.save()
+        for item in processingOrderitems:
+            item.status = OrderItem.Status_Cancelled
+            item.save()
+
+    messages.info(request, "Order Cancelled Successfully")
+    return redirect("customer_pending_orders")

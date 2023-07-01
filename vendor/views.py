@@ -359,10 +359,14 @@ def vendororders(request):
 def vendorpendingorders(request):
     vendor = Vendor.objects.get(user=request.user)
     pending_orders = Order.objects.filter(
-        vendors__in=[vendor.id], is_ordered=True
+        vendors__in=[vendor.id],
+        is_ordered=True,
     ).exclude(Q(status=Order.Status_Cancelled) | Q(status=Order.Status_Completed))
-
-    data = {"orders": pending_orders}
+    pendingOrdersOfThisVendor = []
+    for order in pending_orders:
+        if order.vendor_order_status != Order.Status_Completed:
+            pendingOrdersOfThisVendor.append(order)
+    data = {"orders": pendingOrdersOfThisVendor}
     return render(request, "vendor/pending_vendor_orders.html", data)
 
 
@@ -451,7 +455,7 @@ def vendorcompleteorder(request, order_id):
                 "grand_total": vendor_specific_total["grand_total"],
             }
             send_notification(mail_subject, mail_template, data, vendor.user.email)
-            messages.success(request,"Order completed successfully")
+            messages.success(request, "Order completed successfully")
             return redirect("vendor_pending_orders")
 
     except Exception as ex:

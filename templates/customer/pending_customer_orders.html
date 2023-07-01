@@ -5,13 +5,13 @@
 
 {% block content %}
 <div class="main-section">
-    {% include 'includes/pagecover.html' %}
+    {% include 'customer/cover.html' %}
     <div class="page-section account-header buyer-logged-in">
         <div class="container">
             <div class="row">
                 <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
                    <!--load sidebar here-->
-                    {% include 'includes/vendor_sidebar.html' %}
+                    {% include 'includes/customer_sidebar.html' %}
                 </div>
                 <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
                     <div class="user-dashboard loader-holder">
@@ -44,19 +44,16 @@
 
                                                     {% for order in orders %}
                                                     <tr>
-                                                        <td><a href="{% url 'vendor_order_details' order.id %}">{{order.order_number}}</a></td>
+                                                        <td><a href="{% url 'order_detail' order.id %}">{{order.order_number}}</a></td>
                                                         <td>{{order.name}}</td>
                                                         <td>Rs. {{order.get_total_by_vendor.grand_total}}</td>
-                                                        <td>{{order.vendor_order_status}}</td>
+                                                        <td>{{order.status}}</td>
                                                         <td>{{order.created_at}}</td>
                                                        <td>
-                                                        <a href="{% url 'vendor_order_details' order.id %}" class="btn btn-info"> Detail</a>
-                                                        {% if order.vendor_order_status == "Received" %}
-                                                        <a href="{% url 'vendor_process_order' order.id %}" onclick="return confirm('Are you sure you want to process this order?')" class="btn btn-warning"> Process Order</a>
-                                                        {% endif %}
-                                                        {% if order.vendor_order_status == "Processing" %}
-                                                        <a href="{% url 'vendor_complete_order' order.id %}" onclick="return confirm('Are you sure you want to complete this order?')" class="btn btn-success"> Complete</a>
-                                                        {% endif %}
+                                                        <a href="{% url 'order_detail' order.id %}" class="btn btn-info"> Detail</a>
+                                                        
+                                                        <a href="{% url 'customer_cancel_order' order.id %}" onclick="return confirm('Are you sure you want to cancel this order?')" class="btn btn-danger"> Cancel</a>
+                                                        
                                                        </td>
 
                                                     </tr>
