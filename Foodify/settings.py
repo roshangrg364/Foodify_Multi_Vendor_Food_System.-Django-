@@ -166,7 +166,7 @@ EMAIL_PORT = config("EMAIL_PORT", cast=int)
 EMAIL_HOST_USER = config("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = "FOODY COMMUNITY <rudy61@ethereal.email>"
+DEFAULT_FROM_EMAIL = "FOODY COMMUNITY <lesly90@ethereal.email>"
 
 os.environ["PATH"] = (
     os.path.join(BASE_DIR, "env\Lib\site-packages\osgeo") + ";" + os.environ["PATH"]
