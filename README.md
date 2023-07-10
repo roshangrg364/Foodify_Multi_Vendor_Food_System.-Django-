@@ -7,6 +7,7 @@ django multi vendor food ecommerce project
 - pip install simplejson
 - pip install psycopg2
 - pip install pillow
+-  pip install GDAL-3.4.3-cp311-cp311-win_amd64.whl  // i have used gdal reference for location based search.. for feature is not implemented yet
 
 # Setup Process
 - clone the project
