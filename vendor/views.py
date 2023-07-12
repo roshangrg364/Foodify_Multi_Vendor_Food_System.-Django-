@@ -405,7 +405,7 @@ def vendorprocessorder(request, order_id):
                 "sub_total": vendor_specific_total["sub_total"],
                 "grand_total": vendor_specific_total["grand_total"],
             }
-            send_notification(mail_subject, mail_template, data, vendor.user.email)
+            send_notification(mail_subject, mail_template, data, order.user.email)
             messages.success(request, "order processed successfully")
             return redirect("vendor_pending_orders")
 
@@ -454,7 +454,7 @@ def vendorcompleteorder(request, order_id):
                 "sub_total": vendor_specific_total["sub_total"],
                 "grand_total": vendor_specific_total["grand_total"],
             }
-            send_notification(mail_subject, mail_template, data, vendor.user.email)
+            send_notification(mail_subject, mail_template, data, order.user.email)
             messages.success(request, "Order completed successfully")
             return redirect("vendor_pending_orders")
 
